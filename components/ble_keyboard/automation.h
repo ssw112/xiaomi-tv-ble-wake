@@ -1,0 +1,122 @@
+#pragma once
+
+#ifdef USE_ESP32
+
+#include "esphome/core/component.h"
+#include "esphome/core/automation.h"
+#include "ble_keyboard.h"
+#include <string>
+
+namespace esphome {
+namespace ble_keyboard {
+template<typename... Ts> class Esp32BleKeyboardPrintAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardPrintAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+  TEMPLATABLE_VALUE(std::string, text)
+
+  void play(const Ts &...x) override { this->ble_keyboard_->press(this->text_.value(x...)); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+};
+
+template<typename... Ts> class Esp32BleKeyboardPressAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardPressAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+  TEMPLATABLE_VALUE(uint8_t, code)
+
+  void play(const Ts &...x) override {
+    if (keys_.size() > 1) {
+      MediaKeyReport mediaKey = {keys_[0], keys_[1]};
+
+      this->ble_keyboard_->press(mediaKey, true);
+    } else {
+      this->ble_keyboard_->press(this->code_.value(x...));
+    }
+  }
+
+  void set_keys(const std::vector<uint8_t> &keys) { keys_ = keys; }
+
+ protected:
+  std::vector<uint8_t> keys_;
+  Esp32BleKeyboard *ble_keyboard_;
+};
+
+template<typename... Ts> class Esp32BleKeyboardReleaseAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardReleaseAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+
+  void play(const Ts &...x) override { this->ble_keyboard_->release(); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+};
+
+template<typename... Ts> class Esp32BleKeyboardCombinationAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardCombinationAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+  TEMPLATABLE_VALUE(uint32_t, delay)
+
+  void play(const Ts &...x) override {
+    uint32_t delay_ms = this->delay_.value(x...);
+    this->ble_keyboard_->press_combination(keys_, delay_ms);
+  }
+
+  void set_keys(const std::vector<std::string> &keys) { keys_ = keys; }
+
+ protected:
+  std::vector<std::string> keys_;
+  Esp32BleKeyboard *ble_keyboard_;
+};
+
+template<typename... Ts> class Esp32BleKeyboardStartAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardStartAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+
+  void play(const Ts &...x) override { this->ble_keyboard_->start(); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+};
+
+template<typename... Ts> class Esp32BleKeyboardStartDirectedAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardStartDirectedAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+  void set_peer(const std::string &peer) { peer_ = peer; }
+  void set_duration(uint32_t ms) { duration_ = ms; }
+  void play(const Ts &...x) override { this->ble_keyboard_->start_directed(peer_, duration_); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+  std::string peer_;
+  uint32_t duration_{8000};
+};
+
+template<typename... Ts> class Esp32BleKeyboardMtkWakeAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardMtkWakeAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+  void set_mac(const std::string &mac) { mac_ = mac; }
+  void set_connectable(bool r) { connectable_ = r; }
+  void set_duration(uint32_t ms) { duration_ = ms; }
+  void play(const Ts &...x) override { this->ble_keyboard_->start_mtk_wake(mac_, connectable_, duration_); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+  std::string mac_;
+  bool connectable_{false};
+  uint32_t duration_{4000};
+};
+
+template<typename... Ts> class Esp32BleKeyboardStopAction : public Action<Ts...> {
+ public:
+  explicit Esp32BleKeyboardStopAction(Esp32BleKeyboard *ble_keyboard) : ble_keyboard_(ble_keyboard) {}
+
+  void play(const Ts &...x) override { this->ble_keyboard_->stop(); }
+
+ protected:
+  Esp32BleKeyboard *ble_keyboard_;
+};
+}  // namespace ble_keyboard
+}  // namespace esphome
+
+#endif
