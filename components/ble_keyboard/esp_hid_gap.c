@@ -230,7 +230,7 @@ esp_err_t esp_hid_ble_gap_adv_start(void)
     return rc;
 }
 
-/* 2026-10-20 patch (dataval): low-duty-cycle DIRECTED advertising to one bonded peer.
+/* 2026-10-20 patch (ssw112): low-duty-cycle DIRECTED advertising to one bonded peer.
  * Used to wake a Xiaomi/MediaTek TV whose BT chip wakes the SoC on directed
  * advertisements from addresses in its rclist. peer_le = address bytes little-endian. */
 esp_err_t esp_hid_ble_gap_adv_start_directed(const uint8_t peer_le[6], int32_t duration_ms)
@@ -266,7 +266,7 @@ esp_err_t esp_hid_ble_gap_adv_start_directed(const uint8_t peer_le[6], int32_t d
     return rc;
 }
 
-/* 2026-10-20 patch (dataval): undirected ADV_IND carrying manufacturer data. The Xiaomi/MTK
+/* 2026-10-20 patch (ssw112): undirected ADV_IND carrying manufacturer data. The Xiaomi/MTK
  * TV's wake-over-BLE APCF filter (vendor/firmware/woble_setting_7668.bin) matches on
  * manufacturer data, not on the address: 0x0046 (MediaTek) + 1 byte + remote MAC + 4 bytes + "CRKTM". */
 esp_err_t esp_hid_ble_gap_adv_start_mfg(const uint8_t *mfg, uint8_t mfg_len, int32_t duration_ms)
@@ -294,7 +294,7 @@ esp_err_t esp_hid_ble_gap_adv_start_mfg(const uint8_t *mfg, uint8_t mfg_len, int
     return rc;
 }
 
-/* 2026-10-20 patch (dataval): undirected ADV_IND with a raw, caller-supplied payload. */
+/* 2026-10-20 patch (ssw112): undirected ADV_IND with a raw, caller-supplied payload. */
 esp_err_t esp_hid_ble_gap_adv_start_raw(const uint8_t *adv, uint8_t adv_len, bool connectable, int32_t duration_ms)
 {
     int rc;

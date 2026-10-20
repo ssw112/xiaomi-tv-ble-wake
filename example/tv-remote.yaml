@@ -28,7 +28,7 @@ api:
   actions:
     # HA: esphome.tv_remote_tv_wake_mtk -> 10 s clone of the Xiaomi remote's wake advert, sent from
     # the remote's own BT address, non-connectable. Wakes the TV from standby (~3 s) and from
-    # cold-off after a power cut (~30 s to network). Used by script.dog_noise_on.
+    # cold-off after a power cut (~30 s to network). Call it from a Home Assistant script before anything that needs the TV awake.
     - action: tv_wake_mtk
       then:
         - ble_keyboard.mtk_wake:
